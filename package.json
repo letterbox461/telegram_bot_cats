@@ -6,7 +6,8 @@
     "node-telegram-bot-api": "^0.60.0",
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.28.0"
+    "sequelize": "^6.28.0",
+    "sqlite3": "^5.1.4"
   },
   "name": "catogram",
   "version": "1.0.0",
