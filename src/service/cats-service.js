@@ -2,6 +2,10 @@ const cats = require("../entities/cat-entity");
 const axios = require("axios");
 
 class CatsService {
+  async removeCat(id) {
+    await cats.destroy({ where: { id } });
+  }
+
   async getCatFromDB(bot, chatId, user) {
     try {
       const catsFromDB = await cats.findAll({
@@ -9,7 +13,13 @@ class CatsService {
       });
       if (catsFromDB.length) {
         catsFromDB.forEach((cat) => {
-          bot.sendPhoto(chatId, cat.catUrl);
+          cat.catUrl.includes(".gif")
+            ? bot.sendAnimation(chatId, cat.catUrl, {
+                reply_markup: this.replyMarkup_remove(cat.id),
+              })
+            : bot.sendPhoto(chatId, cat.catUrl, {
+                reply_markup: this.replyMarkup_remove(cat.id),
+              });
         });
       }
     } catch {
@@ -25,28 +35,16 @@ class CatsService {
   async getCat(bot, chatId, userID) {
     try {
       const cat = await this.fetchCat();
-      console.log(cat.data.file);
-
-      bot.sendPhoto(chatId, cat.data.file.replace(/" "/gi, "%20"), {
-        reply_markup: JSON.stringify({
-          inline_keyboard: [
-            [
-              {
-                text: "One More",
-                callback_data: "one_more_cat",
-              },
-            ],
-            [
-              {
-                text: "To Favorites",
-                callback_data: `${cat.data.file
-                  .replace(/" "/gi, "%20")
-                  .replace(process.env.IMAGE_URL, "")} ${userID}`,
-              },
-            ],
-          ],
-        }),
-      });
+      const data = cat.data.file;
+      console.log(data);
+      if (data.includes(".gif"))
+        bot.sendAnimation(chatId, data.replace(/" "/gi, "%20"), {
+          reply_markup: this.replyMarkup_add(cat.data.file, userID),
+        });
+      else
+        bot.sendPhoto(chatId, data.replace(/" "/gi, "%20"), {
+          reply_markup: this.replyMarkup_add(cat.data.file, userID),
+        });
     } catch (e) {
       console.log(e);
     }
@@ -72,6 +70,38 @@ class CatsService {
       bot.sendMessage(chatId, "Ошибка базы данных :((");
       console.log(e);
     }
+  }
+  replyMarkup_add(file, userID) {
+    return JSON.stringify({
+      inline_keyboard: [
+        [
+          {
+            text: "One More",
+            callback_data: "one_more_cat",
+          },
+        ],
+        [
+          {
+            text: "To Favorites",
+            callback_data: `${file
+              .replace(/" "/gi, "%20")
+              .replace(process.env.IMAGE_URL, "")} ${userID}`,
+          },
+        ],
+      ],
+    });
+  }
+  replyMarkup_remove(id) {
+    return JSON.stringify({
+      inline_keyboard: [
+        [
+          {
+            text: "Remove from favorites",
+            callback_data: `remove ${id}`,
+          },
+        ],
+      ],
+    });
   }
 }
 

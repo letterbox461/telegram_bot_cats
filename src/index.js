@@ -69,9 +69,15 @@ bot.on("callback_query", async (msg) => {
   const data = msg.data;
   const chatId = msg.message.chat.id;
 
-  switch (data) {
+  switch (data.split(" ")[0]) {
     case "one_more_cat": {
       await catsService.getCat(bot, chatId, msg.from.id);
+      break;
+    }
+    case "remove": {
+      const id = data.split(" ")[1];
+      await catsService.removeCat(id);
+      bot.sendMessage(chatId, `Cat №${id} removed`);
       break;
     }
     default: {
