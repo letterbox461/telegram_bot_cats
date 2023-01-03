@@ -2,25 +2,25 @@ const TelegramBot = require("node-telegram-bot-api");
 const catsService = require("../service/cats-service");
 
 class CatController {
-  commands() {
-    return [
+  constructor() {
+    this.commands = [
       { command: "/start", description: "Начальное приветствие" },
       { command: "/cat", description: "Получение фото кота" },
       { command: "/favorites", description: "Получение избранных фото" },
     ];
   }
 
+  getCommands() {
+    return this.commands;
+  }
+
   async messageHandler(bot, msg) {
     const chatId = msg.chat.id;
-
     try {
       console.log(msg);
       switch (msg.text) {
         case "/start": {
-          bot.sendMessage(
-            chatId,
-            `Привет ${msg.from.first_name}!\nНапиши в чате:\n - /cat чтобы получить фото случайного кошака\n - /favorites чтобы получить избранные фото\n - /start чтобы отобразить это сообщение \nВнимание! Фото с открытого внешнего api, автор бота не несет ответственности за содержание! `
-          );
+          catsService.sayHello(bot, chatId, msg.from.first_name);
           break;
         }
         case "/cat": {

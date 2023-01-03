@@ -1,18 +1,18 @@
-const TelegramBot = require("node-telegram-bot-api");
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
+const TelegramBot = require("node-telegram-bot-api");
 const controller = require("./controller/cat-controller");
+const sequelize = require("./database/sequelize");
+const cats = require("./entities/cat-entity");
 
 process.on("uncaughtException", (error, origin) => {
-  console.log("uncaughtException");
+  console.log(error, origin);
 });
 
 process.on("unhandledRejection", (reason, promise) => {
-  console.log("unhandledRejection");
+  console.log(reason, promise);
 });
 
-const sequelize = require("./database/sequelize");
-const cats = require("./entities/cat-entity");
 const token = process.env.TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
@@ -26,7 +26,7 @@ const bot = new TelegramBot(token, { polling: true });
   }
 })();
 
-bot.setMyCommands(controller.commands());
+bot.setMyCommands(controller.getCommands());
 
 bot.on("message", async (msg) => {
   controller.messageHandler(bot, msg);
