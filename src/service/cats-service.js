@@ -29,6 +29,8 @@ class CatsService {
 
   async fetchCat() {
     const cat = await axios.get("https://aws.random.cat/meow");
+    if (cat.data.file.length > 53 + process.env.IMAGE_URL.length)
+      return this.fetchCat();
     return cat;
   }
 
@@ -102,6 +104,12 @@ class CatsService {
         ],
       ],
     });
+  }
+  sayHello(bot, chatId, name) {
+    bot.sendMessage(
+      chatId,
+      `Привет ${name}!\nНапиши в чате:\n - /cat чтобы получить фото случайного кошака\n - /favorites чтобы получить избранные фото\n - /start чтобы отобразить это сообщение \nВнимание! Фото с открытого внешнего api, автор бота не несет ответственности за содержание! `
+    );
   }
 }
 
